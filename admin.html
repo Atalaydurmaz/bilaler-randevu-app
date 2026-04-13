@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#EBEBED">
+  <title>Admin – Bilal Er</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <!-- EmailJS -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script src="emailjs-config.js"></script>
+  <style>
+    body { overflow: auto; height: auto; background: #EBEBED; }
+    #app { height: auto; min-height: 100dvh; overflow: visible; background: #EBEBED; }
+
+    .admin-header {
+      text-align: center;
+      padding: calc(var(--safe-top) + 40px) 20px 24px;
+    }
+    .admin-logo { width: 72px; height: 72px; border-radius: 50%; overflow: hidden; margin: 0 auto 10px; border: 2px solid var(--border); }
+    .admin-logo img { width: 100%; height: 100%; object-fit: cover; }
+    .admin-brand { font-size: 22px; font-weight: 900; letter-spacing: -0.02em; color: var(--text); margin-bottom: 3px; }
+    .admin-sub   { font-size: 13px; color: var(--gray); }
+
+    /* PIN */
+    .pin-display {
+      display: flex; gap: 12px; justify-content: center;
+      margin-bottom: 28px;
+    }
+    .pin-dot {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      background: var(--surface2);
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .pin-dot.filled { background: var(--black); border-color: var(--black); }
+
+    .pin-pad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      max-width: 280px;
+      margin: 0 auto 20px;
+    }
+    .pin-key {
+      aspect-ratio: 1;
+      border-radius: var(--radius-md);
+      border: 1.5px solid var(--border);
+      background: var(--surface1);
+      color: var(--text);
+      font-size: 22px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      touch-action: manipulation;
+      user-select: none;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+      transition: background var(--transition);
+    }
+    .pin-key:active { background: var(--surface3); }
+    .pin-key.del { font-size: 18px; color: var(--gray-light); }
+    .pin-key.empty { background: transparent; border-color: transparent; cursor: default; box-shadow: none; }
+
+    .pin-error {
+      text-align: center; color: var(--danger);
+      font-size: 13px; font-weight: 600;
+      margin-bottom: 12px;
+      animation: shake 0.4s ease;
+    }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      25%      { transform: translateX(-7px); }
+      75%      { transform: translateX(7px); }
+    }
+
+    /* STATS */
+    .admin-stats {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 10px; padding: 0 20px 20px;
+    }
+    .stat-card {
+      background: var(--surface1);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px 12px;
+      text-align: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .stat-num   { font-size: 28px; font-weight: 900; color: var(--text); margin-bottom: 2px; }
+    .stat-label { font-size: 11px; color: var(--gray); font-weight: 600; }
+
+    /* FILTER CHIPS */
+    .admin-date-filter {
+      padding: 0 20px 16px;
+      display: flex; gap: 8px;
+      overflow-x: auto; -ms-overflow-style: none; scrollbar-width: none;
+    }
+    .admin-date-filter::-webkit-scrollbar { display: none; }
+    .filter-chip {
+      flex-shrink: 0;
+      padding: 8px 18px;
+      border-radius: 24px;
+      border: 1.5px solid var(--border);
+      background: var(--surface1);
+      color: var(--gray-light);
+      font-size: 13px; font-weight: 600;
+      cursor: pointer;
+      touch-action: manipulation;
+      white-space: nowrap;
+      transition: all var(--transition);
+    }
+    .filter-chip.active {
+      background: var(--black);
+      border-color: var(--black);
+      color: #fff;
+    }
+
+    /* APPOINTMENT CARDS */
+    .admin-appointments { padding: 0 20px calc(var(--safe-bottom) + 40px); }
+    .appt-section-title {
+      font-size: 11px; font-weight: 700;
+      color: var(--gray);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 10px; margin-top: 20px;
+    }
+    .appt-card {
+      background: var(--surface1);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      margin-bottom: 8px;
+      display: flex; gap: 14px; align-items: flex-start;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .appt-time-badge {
+      background: var(--surface2);
+      border-radius: var(--radius-sm);
+      padding: 7px 10px;
+      text-align: center;
+      min-width: 56px; flex-shrink: 0;
+    }
+    .appt-time      { font-size: 15px; font-weight: 800; color: var(--text); }
+    .appt-date-sm   { font-size: 10px; color: var(--gray); margin-top: 1px; }
+    .appt-name      { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+    .appt-service   { font-size: 12px; color: var(--gray-light); margin-bottom: 2px; }
+    .appt-phone     { font-size: 12px; color: var(--gray); }
+    .appt-details   { flex: 1; }
+    .appt-price     { font-size: 14px; font-weight: 800; color: var(--text2); flex-shrink: 0; }
+    .appt-delete    {
+      background: none; border: none;
+      color: var(--border); cursor: pointer;
+      font-size: 16px; padding: 4px; flex-shrink: 0;
+      touch-action: manipulation;
+      transition: color var(--transition);
+    }
+    .appt-delete:active { color: var(--danger); }
+
+    /* Durum badge */
+    .status-badge {
+      display: inline-flex; align-items: center;
+      font-size: 11px; font-weight: 700;
+      padding: 3px 8px; border-radius: 20px;
+      margin-top: 4px;
+    }
+    .status-beklemede  { background: #FFF3CD; color: #856404; }
+    .status-onaylandi  { background: #D1FAE5; color: #065F46; }
+    .status-reddedildi { background: #FEE2E2; color: #991B1B; }
+
+    /* Onay/Red butonları */
+    .appt-actions {
+      display: flex; gap: 6px; margin-top: 8px;
+    }
+    .btn-approve, .btn-reject {
+      flex: 1; padding: 7px 0;
+      border-radius: var(--radius-sm);
+      border: none; font-size: 12px; font-weight: 700;
+      cursor: pointer; touch-action: manipulation;
+      transition: opacity var(--transition);
+      font-family: inherit;
+    }
+    .btn-approve { background: #D1FAE5; color: #065F46; }
+    .btn-approve:active { opacity: 0.75; }
+    .btn-reject  { background: #FEE2E2; color: #991B1B; }
+    .btn-reject:active  { opacity: 0.75; }
+
+    /* Beklemede kartı vurgula */
+    .appt-card.beklemede { border-color: #F59E0B; }
+
+    .empty-state {
+      text-align: center; padding: 56px 20px;
+      color: var(--gray); font-size: 14px;
+    }
+    .empty-icon { font-size: 40px; margin-bottom: 12px; }
+
+    /* LOGOUT */
+    .admin-logout {
+      position: fixed; top: calc(var(--safe-top) + 12px); right: 16px;
+      padding: 8px 16px; border-radius: 20px;
+      border: 1.5px solid var(--border);
+      background: var(--surface1);
+      color: var(--gray-light);
+      font-size: 12px; font-weight: 600; font-family: inherit;
+      cursor: pointer; z-index: 100;
+      touch-action: manipulation;
+      transition: all var(--transition);
+    }
+    .admin-logout:active { border-color: var(--danger); color: var(--danger); }
+
+    /* SİLME MODALI */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(4px);
+      display: flex; align-items: flex-end; justify-content: center;
+      z-index: 999;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal-box {
+      background: var(--surface1);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      padding: 24px 20px calc(var(--safe-bottom) + 24px);
+      width: 100%; max-width: 480px;
+      transform: translateY(20px);
+      transition: transform 0.25s;
+    }
+    .modal-overlay.open .modal-box { transform: translateY(0); }
+    .modal-icon { font-size: 36px; text-align: center; margin-bottom: 12px; }
+    .modal-title { font-size: 17px; font-weight: 800; color: var(--text); text-align: center; margin-bottom: 6px; }
+    .modal-desc  { font-size: 13px; color: var(--gray); text-align: center; margin-bottom: 20px; }
+    .modal-actions { display: flex; gap: 10px; }
+    .modal-btn-cancel {
+      flex: 1; padding: 14px;
+      border-radius: var(--radius-md);
+      border: 1.5px solid var(--border);
+      background: var(--surface2);
+      color: var(--text); font-size: 14px; font-weight: 700;
+      font-family: inherit; cursor: pointer;
+    }
+    .modal-btn-delete {
+      flex: 1; padding: 14px;
+      border-radius: var(--radius-md);
+      border: none;
+      background: #FEE2E2; color: #991B1B;
+      font-size: 14px; font-weight: 700;
+      font-family: inherit; cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- GİRİŞ -->
+  <div id="admin-login-wrap">
+    <div class="admin-header">
+      <div class="admin-logo"><img src="669807691_17867923785664164_2963918241863013198_n.jpg" alt="Bilal Er"></div>
+      <div class="admin-brand">Bilal Er Panel</div>
+      <div class="admin-sub">PIN ile giriş yap</div>
+    </div>
+    <div style="padding: 0 20px 40px;">
+      <div class="pin-display">
+        <div class="pin-dot" id="dot-0"></div>
+        <div class="pin-dot" id="dot-1"></div>
+        <div class="pin-dot" id="dot-2"></div>
+        <div class="pin-dot" id="dot-3"></div>
+      </div>
+      <div id="pin-error" class="pin-error" style="display:none;">Yanlış PIN, tekrar dene</div>
+      <div class="pin-pad">
+        <button class="pin-key" onclick="pinKey('1')">1</button>
+        <button class="pin-key" onclick="pinKey('2')">2</button>
+        <button class="pin-key" onclick="pinKey('3')">3</button>
+        <button class="pin-key" onclick="pinKey('4')">4</button>
+        <button class="pin-key" onclick="pinKey('5')">5</button>
+        <button class="pin-key" onclick="pinKey('6')">6</button>
+        <button class="pin-key" onclick="pinKey('7')">7</button>
+        <button class="pin-key" onclick="pinKey('8')">8</button>
+        <button class="pin-key" onclick="pinKey('9')">9</button>
+        <button class="pin-key empty" disabled></button>
+        <button class="pin-key" onclick="pinKey('0')">0</button>
+        <button class="pin-key del" onclick="pinDel()">⌫</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SİLME MODALI -->
+  <div class="modal-overlay" id="delete-modal">
+    <div class="modal-box">
+      <div class="modal-icon">🗑️</div>
+      <div class="modal-title">Randevuyu sil</div>
+      <div class="modal-desc">Bu randevu kalıcı olarak silinecek. Emin misin?</div>
+      <div class="modal-actions">
+        <button class="modal-btn-cancel" onclick="closeDeleteModal()">Vazgeç</button>
+        <button class="modal-btn-delete" onclick="confirmDelete()">Evet, Sil</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL -->
+  <div id="admin-panel-wrap" style="display:none;">
+    <button class="admin-logout" onclick="adminLogout()">Çıkış</button>
+    <div class="admin-header">
+      <div class="admin-logo"><img src="669807691_17867923785664164_2963918241863013198_n.jpg" alt="Bilal Er"></div>
+      <div class="admin-brand">Randevular</div>
+      <div class="admin-sub" id="admin-today-label"></div>
+    </div>
+    <div class="admin-stats">
+      <div class="stat-card"><div class="stat-num" id="stat-today">0</div><div class="stat-label">Bugün</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-week">0</div><div class="stat-label">Bu Hafta</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Toplam</div></div>
+    </div>
+    <div class="admin-date-filter" id="filter-chips"></div>
+    <div class="admin-appointments" id="appt-list"></div>
+  </div>
+
+</div>
+
+<script>
+  const ADMIN_PIN = '6666';
+  let pinBuffer = '';
+
+  function pinKey(d) {
+    if (pinBuffer.length >= 4) return;
+    pinBuffer += d;
+    updateDots();
+    if (pinBuffer.length === 4) setTimeout(checkPin, 180);
+  }
+  function pinDel() {
+    pinBuffer = pinBuffer.slice(0, -1);
+    updateDots();
+    document.getElementById('pin-error').style.display = 'none';
+  }
+  function updateDots() {
+    for (let i = 0; i < 4; i++)
+      document.getElementById('dot-' + i).classList.toggle('filled', i < pinBuffer.length);
+  }
+  function checkPin() {
+    if (pinBuffer === ADMIN_PIN) {
+      document.getElementById('admin-login-wrap').style.display = 'none';
+      document.getElementById('admin-panel-wrap').style.display = 'block';
+      loadPanel();
+    } else {
+      const err = document.getElementById('pin-error');
+      err.style.display = 'block';
+      err.style.animation = 'none'; void err.offsetWidth; err.style.animation = '';
+      pinBuffer = ''; updateDots();
+    }
+  }
+  function adminLogout() {
+    adminLogoutFull();
+    pinBuffer = ''; updateDots();
+    document.getElementById('pin-error').style.display = 'none';
+    document.getElementById('admin-login-wrap').style.display = 'block';
+    document.getElementById('admin-panel-wrap').style.display = 'none';
+  }
+
+  let activeFilter = 'today';
+  let allAppointments = []; // bellekte tutulan liste
+  let unsubscribe = null;   // Firestore dinleyici
+
+  const TR_MONTHS = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran',
+                     'Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+
+  function fmtDate(dateStr) {
+    if (!dateStr) return '—';
+    const [y, m, d] = dateStr.split('-').map(Number);
+    return d + ' ' + TR_MONTHS[m - 1] + ' ' + y;
+  }
+  const TR_DAYS   = ['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
+
+  function todayStr() {
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  }
+  function weekStart() {
+    const d = new Date(); const day = d.getDay() === 0 ? 6 : d.getDay()-1;
+    d.setDate(d.getDate() - day); d.setHours(0,0,0,0); return d;
+  }
+
+  // Randevu sil — hem Firestore hem localStorage'dan
+  async function updateStatus(id, newStatus) {
+    // UI'ı anında güncelle
+    const idx = allAppointments.findIndex(a => a.id === id);
+    if (idx !== -1) { allAppointments[idx].status = newStatus; }
+    renderPanel(allAppointments);
+
+    // localStorage'ı da anında güncelle
+    const localList = JSON.parse(localStorage.getItem('bilal_appointments') || '[]');
+    const li = localList.findIndex(a => a.id === id);
+    if (li !== -1) { localList[li].status = newStatus; }
+    localStorage.setItem('bilal_appointments', JSON.stringify(localList));
+
+    // Firestore güncelle
+    if (typeof db !== 'undefined') {
+      try {
+        await db.collection('appointments').doc(id).update({ status: newStatus });
+      } catch(e) { console.warn('Firestore güncelleme hatası:', e); }
+    }
+
+    // Müşteriye mail gönder
+    const appt = allAppointments.find(a => a.id === id);
+    if (appt && appt.email && typeof emailjs !== 'undefined') {
+      emailjs.init(window.EJS_PUBLIC_KEY);
+      const templateId = newStatus === 'onaylandi'
+        ? window.EJS_TEMPLATE_ONAY
+        : window.EJS_TEMPLATE_RED;
+      const params = newStatus === 'onaylandi' ? {
+        musteri_mail: appt.email,
+        musteri_adi:  appt.name,
+        hizmet:       appt.service,
+        tarih:        fmtDate(appt.date),
+        saat:         appt.time,
+        fiyat:        appt.price + '₺'
+      } : {
+        musteri_mail: appt.email,
+        baslik:  `Merhaba ${appt.name},`,
+        icerik:  `<p>Maalesef seçtiğiniz tarih ve saat için randevunuzu onaylayamıyoruz.</p><p><b>Hizmet:</b> ${appt.service}<br><b>Tarih:</b> ${fmtDate(appt.date)}<br><b>Saat:</b> ${appt.time}</p><p>Farklı bir tarih için tekrar randevu alabilirsiniz.</p>`,
+        imza:    'Bilal Er Hair Workshop'
+      };
+      emailjs.send(window.EJS_SERVICE_ID, templateId, params)
+        .catch(e => console.warn('Müşteri maili gönderilemedi:', e));
+    }
+  }
+
+  let pendingDeleteId = null;
+
+  function deleteAppointment(id) {
+    pendingDeleteId = id;
+    document.getElementById('delete-modal').classList.add('open');
+  }
+  function closeDeleteModal() {
+    pendingDeleteId = null;
+    document.getElementById('delete-modal').classList.remove('open');
+  }
+  async function confirmDelete() {
+    const id = pendingDeleteId;
+    closeDeleteModal();
+    if (!id) return;
+    if (typeof db !== 'undefined') {
+      await db.collection('appointments').doc(id).delete();
+    } else {
+      const list = JSON.parse(localStorage.getItem('bilal_appointments') || '[]').filter(a => a.id !== id);
+      localStorage.setItem('bilal_appointments', JSON.stringify(list));
+      renderPanel(list);
+    }
+  }
+
+  // Paneli çiz
+  function renderPanel(all) {
+    allAppointments = all;
+    const today = todayStr();
+    const ws = weekStart();
+
+    // İstatistikler
+    document.getElementById('stat-today').textContent = all.filter(a => a.date === today).length;
+    document.getElementById('stat-week').textContent  = all.filter(a => new Date(a.date+'T00:00:00') >= ws).length;
+    document.getElementById('stat-total').textContent = all.length;
+
+    const d = new Date();
+    document.getElementById('admin-today-label').textContent =
+      TR_DAYS[d.getDay()] + ', ' + d.getDate() + ' ' + TR_MONTHS[d.getMonth()];
+
+    // Filtre butonları
+    const chips = document.getElementById('filter-chips');
+    chips.innerHTML = '';
+    [{ key:'today', label:'Bugün' }, { key:'week', label:'Bu Hafta' }, { key:'all', label:'Tümü' }]
+      .forEach(f => {
+        const b = document.createElement('button');
+        b.className = 'filter-chip' + (f.key === activeFilter ? ' active' : '');
+        b.textContent = f.label;
+        b.onclick = () => { activeFilter = f.key; renderPanel(allAppointments); };
+        chips.appendChild(b);
+      });
+
+    // Filtrelenmiş liste
+    let filtered = all;
+    if (activeFilter === 'today') filtered = all.filter(a => a.date === today);
+    if (activeFilter === 'week')  filtered = all.filter(a => new Date(a.date+'T00:00:00') >= ws);
+    filtered.sort((a,b) => a.date !== b.date ? a.date.localeCompare(b.date) : a.time.localeCompare(b.time));
+
+    const list = document.getElementById('appt-list');
+    list.innerHTML = '';
+    if (!filtered.length) {
+      list.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div>Henüz randevu yok</div>';
+      return;
+    }
+
+    const groups = {};
+    filtered.forEach(a => { if (!groups[a.date]) groups[a.date] = []; groups[a.date].push(a); });
+
+    Object.keys(groups).sort().forEach(dateKey => {
+      const dateObj = new Date(dateKey + 'T00:00:00');
+      const label = dateKey === today ? 'Bugün' :
+        TR_DAYS[dateObj.getDay()] + ', ' + dateObj.getDate() + ' ' + TR_MONTHS[dateObj.getMonth()];
+
+      const title = document.createElement('div');
+      title.className = 'appt-section-title';
+      title.textContent = label;
+      list.appendChild(title);
+
+      groups[dateKey].forEach(appt => {
+        const status = appt.status || 'beklemede';
+        const statusLabel = { beklemede: '⏳ Beklemede', onaylandi: '✅ Onaylandı', reddedildi: '❌ Reddedildi' }[status];
+        const actionBtns = status === 'beklemede' ? `
+          <div class="appt-actions">
+            <button class="btn-approve" onclick="updateStatus('${appt.id}', 'onaylandi')">Onayla</button>
+            <button class="btn-reject"  onclick="updateStatus('${appt.id}', 'reddedildi')">Reddet</button>
+          </div>` : status === 'reddedildi' ? `
+          <div class="appt-actions">
+            <button class="btn-reject" style="flex:1" onclick="deleteAppointment('${appt.id}')">Sil</button>
+          </div>` : '';
+
+        const card = document.createElement('div');
+        card.className = `appt-card ${status}`;
+        card.innerHTML = `
+          <div class="appt-time-badge">
+            <div class="appt-time">${appt.time}</div>
+            <div class="appt-date-sm">${dateObj.getDate()} ${TR_MONTHS[dateObj.getMonth()].slice(0,3)}</div>
+          </div>
+          <div class="appt-details">
+            <div class="appt-name">${appt.name}</div>
+            <div class="appt-service">${appt.service}</div>
+            <div class="appt-phone">${appt.phone}${appt.note ? ' · ' + appt.note : ''}</div>
+            <span class="status-badge status-${status}">${statusLabel}</span>
+            ${actionBtns}
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">
+            <div class="appt-price">${appt.price}₺</div>
+            <button class="appt-delete" onclick="deleteAppointment('${appt.id}')">🗑</button>
+          </div>`;
+        list.appendChild(card);
+      });
+    });
+  }
+
+  // Panel aç: Firebase varsa gerçek zamanlı dinle, yoksa localStorage'dan oku
+  function loadPanel() {
+    if (typeof db !== 'undefined') {
+      // Önceki dinleyiciyi kapat
+      if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+
+      // onSnapshot — yeni randevu gelince sayfa yenilenmeden anında günceller
+      unsubscribe = db.collection('appointments')
+        .onSnapshot(snap => {
+          const data = snap.docs.map(d => d.data());
+          localStorage.setItem('bilal_appointments', JSON.stringify(data));
+          renderPanel(data);
+        }, err => {
+          console.warn('Firebase bağlantı hatası, localStorage kullanılıyor');
+          const data = JSON.parse(localStorage.getItem('bilal_appointments') || '[]');
+          renderPanel(data);
+        });
+    } else {
+      // firebase-config.js henüz doldurulmamış — localStorage'dan oku
+      const data = JSON.parse(localStorage.getItem('bilal_appointments') || '[]');
+      renderPanel(data);
+    }
+  }
+
+  // Çıkışta dinleyiciyi kapat
+  function adminLogoutFull() {
+    if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+  }
+</script>
+</body>
+</html>

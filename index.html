@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#141416">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Bilal Er – Randevu</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ======== EKRAN 1: KARŞILAMA ======== -->
+  <div class="screen active" id="screen-landing">
+    <div class="screen-body center">
+      <div class="logo-wrap">
+        <div class="logo-ring"></div>
+        <div class="logo-inner">
+          <img src="669807691_17867923785664164_2963918241863013198_n.jpg" alt="Bilal Er" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+          <span class="logo-icon" style="display:none">✂️</span>
+        </div>
+      </div>
+      <p class="brand-name">Bilal Er</p>
+      <p class="brand-sub">Hair Workshop</p>
+      <a href="https://www.instagram.com/bilalerhairworkshop/" target="_blank" class="brand-insta">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+        </svg>
+        @bilalerhairworkshop
+      </a>
+      <div class="divider-line"></div>
+    </div>
+    <div class="screen-footer">
+      <button class="btn-primary" onclick="goTo('screen-service')">Randevu Al</button>
+      <a href="admin.html" class="btn-ghost-link">Panel Girişi</a>
+    </div>
+  </div>
+
+  <!-- ======== EKRAN 2: HİZMET SEÇ ======== -->
+  <div class="screen" id="screen-service">
+    <div class="topbar">
+      <button class="back-btn" onclick="goTo('screen-landing')">←</button>
+      <span class="topbar-title">Hizmet Seç</span>
+    </div>
+    <div class="progress-wrap"><div class="progress-track"><div class="progress-fill" style="width:25%"></div></div></div>
+
+    <div class="screen-body">
+      <p class="section-title">Ne yaptırmak istersin?</p>
+      <p class="section-sub">Bir hizmet seç, devam edelim.</p>
+
+      <div class="service-grid">
+        <div class="service-card" onclick="selectService(this,'Saç',400,30)">
+          <div class="service-icon">✂️</div>
+          <div class="service-info">
+            <div class="service-name">Saç</div>
+            <div class="service-meta"><span>⏱ 30 dk</span></div>
+          </div>
+          <div class="service-price">400₺</div>
+          <div class="service-check">✓</div>
+        </div>
+        <div class="service-card" onclick="selectService(this,'Sakal',200,20)">
+          <div class="service-icon">🪒</div>
+          <div class="service-info">
+            <div class="service-name">Sakal</div>
+            <div class="service-meta"><span>⏱ 20 dk</span></div>
+          </div>
+          <div class="service-price">200₺</div>
+          <div class="service-check">✓</div>
+        </div>
+        <div class="service-card" onclick="selectService(this,'Yıkama',200,15)">
+          <div class="service-icon">🚿</div>
+          <div class="service-info">
+            <div class="service-name">Yıkama</div>
+            <div class="service-meta"><span>⏱ 15 dk</span></div>
+          </div>
+          <div class="service-price">200₺</div>
+          <div class="service-check">✓</div>
+        </div>
+        <div class="service-card" onclick="selectService(this,'Fön',200,20)">
+          <div class="service-icon">💨</div>
+          <div class="service-info">
+            <div class="service-name">Fön</div>
+            <div class="service-meta"><span>⏱ 20 dk</span></div>
+          </div>
+          <div class="service-price">200₺</div>
+          <div class="service-check">✓</div>
+        </div>
+        <div class="service-card" onclick="selectService(this,'Ağda',200,20)">
+          <div class="service-icon">🕯️</div>
+          <div class="service-info">
+            <div class="service-name">Ağda</div>
+            <div class="service-meta"><span>⏱ 20 dk</span></div>
+          </div>
+          <div class="service-price">200₺</div>
+          <div class="service-check">✓</div>
+        </div>
+        <div class="service-card" onclick="selectService(this,'Kaş Tasarımı',200,20)">
+          <div class="service-icon">✨</div>
+          <div class="service-info">
+            <div class="service-name">Kaş Tasarımı</div>
+            <div class="service-meta"><span>⏱ 20 dk</span></div>
+          </div>
+          <div class="service-price">200₺</div>
+          <div class="service-check">✓</div>
+        </div>
+        <div class="service-card" onclick="selectService(this,'Yüz Maskesi',200,30)">
+          <div class="service-icon">🧖</div>
+          <div class="service-info">
+            <div class="service-name">Yüz Maskesi</div>
+            <div class="service-meta"><span>⏱ 30 dk</span></div>
+          </div>
+          <div class="service-price">200₺</div>
+          <div class="service-check">✓</div>
+        </div>
+        <div class="service-card" onclick="selectService(this,'Saç Maskesi',200,30)">
+          <div class="service-icon">💆</div>
+          <div class="service-info">
+            <div class="service-name">Saç Maskesi</div>
+            <div class="service-meta"><span>⏱ 30 dk</span></div>
+          </div>
+          <div class="service-price">200₺</div>
+          <div class="service-check">✓</div>
+        </div>
+        <div class="service-card" onclick="selectService(this,'Detaylı Cilt Bakımı',1000,60)">
+          <div class="service-icon">🧴</div>
+          <div class="service-info">
+            <div class="service-name">Detaylı Cilt Bakımı</div>
+            <div class="service-meta"><span>⏱ 60 dk</span></div>
+          </div>
+          <div class="service-price">1000₺</div>
+          <div class="service-check">✓</div>
+        </div>
+        <div class="service-card" onclick="selectService(this,'Çocuk',300,20)">
+          <div class="service-icon">👦</div>
+          <div class="service-info">
+            <div class="service-name">Çocuk</div>
+            <div class="service-meta"><span>⏱ 20 dk</span></div>
+          </div>
+          <div class="service-price">300₺</div>
+          <div class="service-check">✓</div>
+        </div>
+        <div class="service-card" onclick="selectService(this,'Damat Traşı',3000,90)">
+          <div class="service-icon">🤵</div>
+          <div class="service-info">
+            <div class="service-name">Damat Traşı</div>
+            <div class="service-meta"><span>⏱ 90 dk</span></div>
+          </div>
+          <div class="service-price">3000₺</div>
+          <div class="service-check">✓</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen-footer">
+      <button class="btn-primary" id="btn-service-next" disabled onclick="goTo('screen-date')">Devam Et</button>
+    </div>
+  </div>
+
+  <!-- ======== EKRAN 3: TARİH SEÇ ======== -->
+  <div class="screen" id="screen-date">
+    <div class="topbar">
+      <button class="back-btn" onclick="goTo('screen-service')">←</button>
+      <span class="topbar-title">Tarih Seç</span>
+    </div>
+    <div class="progress-wrap"><div class="progress-track"><div class="progress-fill" style="width:50%"></div></div></div>
+
+    <div class="screen-body">
+      <p class="section-title">Hangi gün?</p>
+      <p class="section-sub">Pazar günleri kapalıyız.</p>
+
+      <div class="calendar-wrap">
+        <div class="cal-header">
+          <button class="cal-nav" id="cal-prev" onclick="changeMonth(-1)">‹</button>
+          <div class="cal-month-year" id="cal-month-year"></div>
+          <button class="cal-nav" id="cal-next" onclick="changeMonth(1)">›</button>
+        </div>
+        <div class="cal-day-names">
+          <div class="cal-day-name">Pt</div>
+          <div class="cal-day-name">Sa</div>
+          <div class="cal-day-name">Ça</div>
+          <div class="cal-day-name">Pe</div>
+          <div class="cal-day-name">Cu</div>
+          <div class="cal-day-name">Ct</div>
+          <div class="cal-day-name" style="color:var(--danger)">Pz</div>
+        </div>
+        <div class="cal-days" id="cal-days"></div>
+      </div>
+    </div>
+
+    <div class="screen-footer">
+      <button class="btn-primary" id="btn-date-next" disabled onclick="goTo('screen-time')">Devam Et</button>
+    </div>
+  </div>
+
+  <!-- ======== EKRAN 4: SAAT SEÇ ======== -->
+  <div class="screen" id="screen-time">
+    <div class="topbar">
+      <button class="back-btn" onclick="goTo('screen-date')">←</button>
+      <span class="topbar-title">Saat Seç</span>
+    </div>
+    <div class="progress-wrap"><div class="progress-track"><div class="progress-fill" style="width:75%"></div></div></div>
+
+    <div class="screen-body">
+      <p class="section-title">Saat seç</p>
+      <p class="section-sub" id="time-screen-sub">Müsait saatlerden birini seç.</p>
+
+      <div class="time-legend">
+        <span><span class="legend-dot available"></span> Müsait</span>
+        <span><span class="legend-dot selected-dot"></span> Seçili</span>
+        <span><span class="legend-dot booked-dot"></span> Dolu</span>
+      </div>
+
+      <div class="time-grid" id="time-grid"></div>
+    </div>
+
+    <div class="screen-footer">
+      <button class="btn-primary" id="btn-time-next" disabled onclick="goTo('screen-info')">Devam Et</button>
+    </div>
+  </div>
+
+  <!-- ======== EKRAN 5: BİLGİLER ======== -->
+  <div class="screen" id="screen-info">
+    <div class="topbar">
+      <button class="back-btn" onclick="goTo('screen-time')">←</button>
+      <span class="topbar-title">Bilgilerini Gir</span>
+    </div>
+    <div class="progress-wrap"><div class="progress-track"><div class="progress-fill" style="width:90%"></div></div></div>
+
+    <div class="screen-body">
+      <p class="section-title">Neredeyse tamam!</p>
+      <p class="section-sub">Seni arayabilelim diye telefon numaranı bırak.</p>
+
+      <div class="form-group">
+        <label class="form-label">Ad Soyad</label>
+        <input type="text" class="form-input" id="input-name" placeholder="Adın ve soyadın" autocomplete="name" inputmode="text" maxlength="40">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Telefon</label>
+        <input type="tel" class="form-input" id="input-phone" placeholder="05XX XXX XX XX" autocomplete="tel" inputmode="tel" maxlength="16">
+      </div>
+      <div class="form-group">
+        <label class="form-label">E-posta</label>
+        <input type="email" class="form-input" id="input-email" placeholder="ornek@gmail.com" autocomplete="email" inputmode="email">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Not (İsteğe bağlı)</label>
+        <textarea class="form-input" id="input-note" placeholder="Özel bir isteğin varsa belirt..." maxlength="120"></textarea>
+      </div>
+    </div>
+
+    <div class="screen-footer">
+      <button class="btn-primary" onclick="goToSummary()">Özeti Gör</button>
+    </div>
+  </div>
+
+  <!-- ======== EKRAN 6: ÖZET ======== -->
+  <div class="screen" id="screen-summary">
+    <div class="topbar">
+      <button class="back-btn" onclick="goTo('screen-info')">←</button>
+      <span class="topbar-title">Randevu Özeti</span>
+    </div>
+    <div class="progress-wrap"><div class="progress-track"><div class="progress-fill" style="width:100%"></div></div></div>
+
+    <div class="screen-body">
+      <p class="section-title">Her şey doğru mu?</p>
+      <p class="section-sub">Onayla ve randevunu oluştur.</p>
+
+      <div class="summary-card">
+        <div class="summary-row">
+          <span class="summary-label">Hizmet</span>
+          <span class="summary-value" id="sum-service">—</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Tarih</span>
+          <span class="summary-value" id="sum-date">—</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Saat</span>
+          <span class="summary-value" id="sum-time">—</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Ad Soyad</span>
+          <span class="summary-value" id="sum-name">—</span>
+        </div>
+        <div class="summary-row summary-total">
+          <span class="summary-label">Toplam</span>
+          <span class="summary-value" id="sum-price">—</span>
+        </div>
+        <div class="barber-row">
+          <div class="barber-avatar">✂️</div>
+          <div>
+            <div class="barber-info-name">Bilal Er</div>
+            <div class="barber-info-role">Kuaför & Berber</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="note-box">📍 Adres için Instagram'daki linkten bakabilirsin.</div>
+    </div>
+
+    <div class="screen-footer">
+      <button class="btn-primary" onclick="confirmBooking()">Randevuyu Onayla ✓</button>
+      <button class="btn-secondary" onclick="goTo('screen-service')" style="margin-top:10px">Değiştir</button>
+    </div>
+  </div>
+
+  <!-- ======== EKRAN 7: BAŞARILI ======== -->
+  <div class="screen" id="screen-success">
+    <div class="screen-body center">
+      <div class="success-anim">✅</div>
+      <p class="success-title">Randevu Alındı!</p>
+      <p class="success-sub">Randevu talebin alındı, en kısa sürede mail üzerinden dönüş yapılacak.</p>
+    </div>
+    <div class="screen-footer">
+      <button class="btn-primary" onclick="goTo('screen-landing'); resetAll()">Yeni Randevu</button>
+      <a href="https://www.instagram.com/bilalerhairworkshop/" target="_blank" class="btn-secondary-link">Instagram'a Git</a>
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<div class="toast" id="toast"></div>
+
+<!-- EmailJS -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="emailjs-config.js"></script>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
