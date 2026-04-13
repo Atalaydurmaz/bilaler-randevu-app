@@ -132,11 +132,22 @@ function renderTimeSlots() {
   getBookedTimes(state.dateStr).then(rawBooked => {
     const bookedTimes = [...new Set([...rawBooked, ...LUNCH_BREAK])];
     grid.innerHTML = '';
+
+    // Bugünse geçmiş saatleri bul
+    const now = new Date();
+    const isToday = state.dateStr === dateToStr(now);
+    const currentHour = now.getHours();
+    const currentMin = now.getMinutes();
+
     ALL_SLOTS.forEach(slot => {
       const el = document.createElement('div');
       el.className = 'time-slot';
       el.textContent = slot;
-      if (bookedTimes.includes(slot)) {
+
+      const [slotH, slotM] = slot.split(':').map(Number);
+      const isPast = isToday && (slotH < currentHour || (slotH === currentHour && slotM <= currentMin));
+
+      if (bookedTimes.includes(slot) || isPast) {
         el.classList.add('booked');
       } else {
         if (slot === state.time) el.classList.add('selected');
@@ -211,6 +222,15 @@ async function confirmBooking() {
   };
 
   try {
+    // Önce saatin hala boş olduğunu kontrol et (race condition koruması)
+    const stillFree = await checkSlotFree(appointment.date, appointment.time);
+    if (!stillFree) {
+      showToast('Bu saat az önce doldu, başka saat seç');
+      btn.disabled = false;
+      btn.textContent = 'Randevuyu Onayla ✓';
+      goTo('screen-time');
+      return;
+    }
     await saveAppointment(appointment);
     sendEmailNotification(appointment); // mail gönder (arka planda)
     goTo('screen-success');
@@ -248,6 +268,20 @@ async function saveAppointment(appt) {
   if (typeof db !== 'undefined') {
     await db.collection('appointments').doc(appt.id).set(appt);
   }
+}
+
+async function checkSlotFree(dateStr, time) {
+  if (typeof db !== 'undefined') {
+    try {
+      const snap = await db.collection('appointments')
+        .where('date', '==', dateStr)
+        .where('time', '==', time)
+        .get();
+      return snap.empty;
+    } catch(e) { return true; }
+  }
+  const list = JSON.parse(localStorage.getItem('bilal_appointments') || '[]');
+  return !list.some(a => a.date === dateStr && a.time === time);
 }
 
 async function getBookedTimes(dateStr) {

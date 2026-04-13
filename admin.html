@@ -324,8 +324,15 @@
 </div>
 
 <script>
-  const ADMIN_PIN = '6666';
+  // SHA-256 hash of PIN (plain text görünmez)
+  const ADMIN_PIN_HASH = 'd7697570462f7562b83e81258de0f1e41832e98072e44c36ec8efec46786e24e';
   let pinBuffer = '';
+
+  async function hashPin(pin) {
+    const data = new TextEncoder().encode(pin);
+    const buf = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+  }
 
   function pinKey(d) {
     if (pinBuffer.length >= 4) return;
@@ -342,8 +349,9 @@
     for (let i = 0; i < 4; i++)
       document.getElementById('dot-' + i).classList.toggle('filled', i < pinBuffer.length);
   }
-  function checkPin() {
-    if (pinBuffer === ADMIN_PIN) {
+  async function checkPin() {
+    const inputHash = await hashPin(pinBuffer);
+    if (inputHash === ADMIN_PIN_HASH) {
       document.getElementById('admin-login-wrap').style.display = 'none';
       document.getElementById('admin-panel-wrap').style.display = 'block';
       loadPanel();
